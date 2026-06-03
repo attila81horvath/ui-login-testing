@@ -8,7 +8,7 @@ import process from "process";
 import {
   LOGGED_IN_SUCCESSFULLY,
   LoggedInPage,
-} from "../../pages/loggedin-page";
+} from "../../pages/loggedIn-page";
 
 test.describe("login group", () => {
   test(`login success ${process.env.STUDENT_USERNAME} / ***${process.env.STUDENT_PASSWORD?.slice(-3)}`, async ({
