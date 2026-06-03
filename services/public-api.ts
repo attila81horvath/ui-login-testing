@@ -1,51 +1,119 @@
 import { APIRequestContext } from "@playwright/test";
 import {
-  DeleteObjectResponse,
   GetObjectResponse,
   PostObjectRequest,
   PostObjectResponse,
   PutObjectRequest,
   PutObjectResponse,
+  DeleteObjectResponse,
 } from "../types/api/restful-api";
 
 const apiUrl = "https://api.restful-api.dev/objects";
 
-export async function getAllObjects(
-  request: APIRequestContext,
-): Promise<{ statusCode: Number; response: GetObjectResponse[] }> {
-  const response = await request.get(apiUrl);
-  return { statusCode: response.status(), response: await response.json() };
-}
+export class ApiTestEndpoint {
+  constructor(private readonly apiRequest: APIRequestContext) {}
 
-export async function getObjectById(
-  request: APIRequestContext,
-  id: string,
-): Promise<{ statusCode: Number; response: GetObjectResponse }> {
-  const response = await request.get(`${apiUrl}/${id}`);
-  return { statusCode: response.status(), response: await response.json() };
-}
+  async getAllObjects(): Promise<{
+    statusCode: Number;
+    response: GetObjectResponse[];
+  }> {
+    const response = await this.apiRequest.get(apiUrl);
+    return { statusCode: response.status(), response: await response.json() };
+  }
 
-export async function postObject(
-  request: APIRequestContext,
-  data: PostObjectRequest,
-): Promise<{ statusCode: Number; response: PostObjectResponse }> {
-  const response = await request.post(apiUrl, { data });
-  return { statusCode: response.status(), response: await response.json() };
-}
+  async getObjectById(
+    id: string,
+  ): Promise<{ statusCode: Number; response: GetObjectResponse }>;
+  async getObjectById(
+    id: string,
+    statusCode: number,
+  ): Promise<{ statusCode: Number; response: string }>;
 
-export async function putObject(
-  request: APIRequestContext,
-  id: string,
-  data: PutObjectRequest,
-): Promise<{ statusCode: Number; response: PutObjectResponse }> {
-  const response = await request.put(`${apiUrl}/${id}`, { data });
-  return { statusCode: response.status(), response: await response.json() };
-}
+  async getObjectById(
+    id: string,
+    statusCode: number = 200,
+  ): Promise<
+    | { statusCode: Number; response: GetObjectResponse }
+    | { statusCode: Number; response: string }
+  > {
+    const response = await this.apiRequest.get(`${apiUrl}/${id}`);
+    if (statusCode === 200) {
+      return { statusCode: response.status(), response: await response.json() };
+    } else {
+      return { statusCode: response.status(), response: await response.text() };
+    }
+  }
 
-export async function deleteObject(
-  request: APIRequestContext,
-  id: string,
-): Promise<{ statusCode: Number; response: DeleteObjectResponse }> {
-  const response = await request.delete(`${apiUrl}/${id}`);
-  return { statusCode: response.status(), response: await response.json() };
+  async postObject(
+    data: PostObjectRequest,
+  ): Promise<{ statusCode: Number; response: PostObjectResponse }>;
+
+  async postObject(
+    data: PostObjectRequest,
+    statusCode: number,
+  ): Promise<{ statusCode: Number; response: string }>;
+
+  async postObject(
+    data: PostObjectRequest,
+    statusCode: number = 200,
+  ): Promise<
+    | { statusCode: Number; response: PostObjectResponse }
+    | { statusCode: Number; response: string }
+  > {
+    const response = await this.apiRequest.post(apiUrl, { data });
+    if (statusCode === 200) {
+      return { statusCode: response.status(), response: await response.json() };
+    } else {
+      return { statusCode: response.status(), response: await response.text() };
+    }
+  }
+
+  async putObject(
+    id: string,
+    data: PutObjectRequest,
+  ): Promise<{ statusCode: Number; response: PutObjectResponse }>;
+  async putObject(
+    id: string,
+    data: PutObjectRequest,
+    statusCode: number,
+  ): Promise<{ statusCode: Number; response: string }>;
+
+  async putObject(
+    id: string,
+    data: PutObjectRequest,
+    statusCode: number = 200,
+  ): Promise<
+    | { statusCode: Number; response: PutObjectResponse }
+    | { statusCode: Number; response: string }
+  > {
+    const response = await this.apiRequest.put(`${apiUrl}/${id}`, { data });
+    if (statusCode === 200) {
+      return { statusCode: response.status(), response: await response.json() };
+    } else {
+      return { statusCode: response.status(), response: await response.text() };
+    }
+  }
+
+  async deleteObject(
+    id: string,
+  ): Promise<{ statusCode: Number; response: DeleteObjectResponse }>;
+  async deleteObject(
+    id: string,
+    statusCode: number,
+  ): Promise<{ statusCode: Number; response: string }>;
+
+  async deleteObject(
+    id: string,
+    statusCode: number = 200,
+  ): Promise<
+    | { statusCode: Number; response: DeleteObjectResponse }
+    | { statusCode: Number; response: string }
+  > {
+    const response = await this.apiRequest.delete(`${apiUrl}/${id}`);
+    if (statusCode === 200) {
+      return { statusCode: response.status(), response: await response.json() };
+    } else {
+      return { statusCode: response.status(), response: await response.text() };
+    }
+  }
 }

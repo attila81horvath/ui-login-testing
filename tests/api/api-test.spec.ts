@@ -1,16 +1,11 @@
 import { test, expect } from "@playwright/test";
-import {
-  deleteObject,
-  getAllObjects,
-  getObjectById,
-  postObject,
-  putObject,
-} from "../../services/public-api";
 import { faker } from "@faker-js/faker";
+import { ApiTestEndpoint } from "../../services/public-api";
 
 test.describe("api testing group", () => {
   test(`api testing`, async ({ request }) => {
     // given
+    const apiTest = new ApiTestEndpoint(request);
     const data = {
       name: faker.commerce.productName(),
       data: {
@@ -21,11 +16,11 @@ test.describe("api testing group", () => {
       },
     };
 
-    const postResponse = await postObject(request, data);
+    const postResponse = await apiTest.postObject(data);
     expect(postResponse.statusCode, "Post object is failed!").toBe(200);
     const newObjectId = postResponse.response.id;
 
-    const getResponse = await getObjectById(request, newObjectId);
+    const getResponse = await apiTest.getObjectById(newObjectId);
     expect(
       getResponse.statusCode,
       `Get object by id: ${newObjectId} is failed!`,
@@ -42,14 +37,14 @@ test.describe("api testing group", () => {
         color: faker.color.human(),
       },
     };
-    const putResponse = await putObject(request, newObjectId, updateData);
+    const putResponse = await apiTest.putObject(newObjectId, updateData);
     expect(
       putResponse.statusCode,
       `Put object by id: ${newObjectId} is failed!`,
     ).toBe(200);
 
     // then
-    const deleteResponse = await deleteObject(request, newObjectId);
+    const deleteResponse = await apiTest.deleteObject(newObjectId);
     expect(
       deleteResponse.statusCode,
       `Delete object by id: ${newObjectId} is failed!`,
